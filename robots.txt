@@ -1,0 +1,3 @@
+# Environnement recette : ne pas indexer.
+User-agent: *
+Disallow: /

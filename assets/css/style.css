@@ -1,0 +1,793 @@
+/* Styles du site, mobile d'abord. Variables : tokens.css
+   Système typographique volontairement réduit :
+   - une seule famille (--police), deux graisses (400, 600), l'italique pour la citation ;
+   - cinq tailles (--t-xs à --t-xl) ;
+   - par type de fond, trois couleurs de texte : principale, secondaire, un accent. */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  display: flex; flex-direction: column; min-height: 100dvh;
+  overflow-x: clip; /* filet de sécurité : jamais de défilement horizontal sur mobile */
+  font-family: var(--police);
+  font-size: var(--t-m);
+  line-height: var(--interligne);
+  color: var(--texte);
+  background: var(--fond) var(--grain);
+}
+
+img, svg { max-width: 100%; height: auto; display: block; }
+
+h1, h2, h3 { font-weight: 600; line-height: 1.2; letter-spacing: -0.015em; }
+h1 { font-size: var(--t-xl); line-height: 1.1; letter-spacing: -0.025em; margin: 0 0 1rem; }
+h2 { font-size: var(--t-l); margin: 2.5rem 0 0.75rem; }
+h3 { font-size: var(--t-m); margin: 1.5rem 0 0.5rem; }
+
+p, ul, ol { max-width: var(--mesure); }
+strong { font-weight: 600; }
+
+a { color: var(--lien); text-underline-offset: 0.18em; text-decoration-thickness: 1px; transition: color var(--duree); }
+a:hover { color: var(--lien-survol); text-decoration-thickness: 2px; }
+
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 4px; }
+
+.icone { width: 1.15em; height: 1.15em; flex: none; }
+
+/* Texte réservé aux lecteurs d'écran */
+.visuellement-cache {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* Étiquette : le seul style « capitales » du site */
+.etiquette {
+  display: flex; align-items: center; gap: 0.6rem; margin: 0 0 0.75rem;
+  font-size: var(--t-xs); font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--titre-accent);
+}
+.etiquette--filet { white-space: nowrap; } /* « 01 · Pourquoi » ne se coupe jamais */
+.etiquette--filet::after { content: ""; flex: 0 0 2rem; height: 1px; background: currentColor; opacity: 0.6; }
+/* Filet après l'étiquette : long (2rem) sur grand écran, court (0,5rem) sur mobile,
+   identique sur toutes les cartes. */
+@media (max-width: 47.99rem) {
+  .etiquette--filet::after { flex: 0 0 0.5rem; }
+}
+
+.conteneur { width: min(100% - 2rem, 84rem); margin-inline: auto; }
+
+.lien-evitement {
+  position: absolute; left: 1rem; top: -4rem; z-index: 20;
+  background: var(--anthracite); color: var(--creme); padding: 0.5rem 1rem; border-radius: var(--rayon-petit);
+}
+.lien-evitement:focus { top: 1rem; outline-color: var(--cuivre-clair); }
+
+/* Bandeau de recette ou de dev (absent en production) */
+.bandeau-environnement {
+  margin: 0; max-width: none; padding: 0.4rem 1rem; text-align: center;
+  font-size: var(--t-s); font-weight: 600;
+  background: var(--noyer); color: var(--creme);
+}
+
+/* ---------- En-tête : actions à gauche, nom à droite ---------- */
+/* En-tête : boutons à gauche, nom à droite (le titre est dans la tuile titre) */
+.entete__ligne {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between;
+  gap: 0.5rem 1.5rem; padding-block: 0.3rem;
+}
+.entete__actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.actions-accueil { display: none; } /* boutons de l'en-tête dupliqués pour l'accueil mobile */
+/* Libellé court sur mobile (« LinkedIn » au lieu de « Mes publications ») */
+.libelle-court { display: none; }
+@media (max-width: 44rem) { .libelle-long { display: none; } .libelle-court { display: inline; } }
+.bouton-entete {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.5rem 1rem; border-radius: 999px;
+  border: 1px solid var(--filet-clair); background: var(--albatre);
+  color: var(--texte); font-size: var(--t-s); font-weight: 600; text-decoration: none;
+  transition: border-color var(--duree), box-shadow var(--duree);
+}
+.bouton-entete .icone { color: var(--rouille); }
+.bouton-entete:hover { color: var(--texte); border-color: var(--rouille); box-shadow: var(--ombre); text-decoration: none; }
+@media (max-width: 30rem) {
+  .bouton-entete { padding: 0.45rem 0.75rem; gap: 0.35rem; }
+  .entete__actions { gap: 0.35rem; }
+}
+
+.entete__marque { display: flex; align-items: center; gap: 1rem; margin-left: auto; }
+.marque { display: flex; align-items: center; gap: 0.75rem; color: var(--texte); text-decoration: none; }
+/* Écrans étroits : quand les deux blocs ne tiennent plus sur une ligne, le nom et le logo
+   passent en premier (à gauche, langue à droite), puis les deux boutons sur toute la largeur. */
+@media (max-width: 44rem) {
+  .entete__marque { order: -1; width: 100%; margin-left: 0; justify-content: space-between; }
+  .entete__marque .entete__outils { order: 1; }
+  /* Mobile : le nom s'aligne sur le texte des cartes (même retrait que leur marge intérieure) */
+  .entete__marque .marque { padding-left: 1.25rem; }
+  /* Accueil : l'en-tête entre dans la tuile « Coaching professionnel » (nom, partage, langue,
+     boutons), et une tuile de contact clôt la page. */
+  .entete:has(~ .accueil) { display: none; }
+  .actions-accueil { display: flex; }
+  .entete__actions { width: 100%; flex-wrap: nowrap; }
+  .bouton-entete { flex: 1 1 0; justify-content: center; white-space: nowrap; }
+  .marque__nom { white-space: nowrap; }
+}
+@media (max-width: 22.5rem) {
+  .bouton-entete { padding-inline: 0.5rem; }
+  .bouton-entete .icone { display: none; }
+}
+.marque:hover { color: var(--texte); text-decoration: none; }
+/* Logo retiré en attendant le nouveau : on garde sa hauteur (40 px) pour que l'en-tête ne bouge pas
+   quand il reviendra. Même réserve sur la page 404 et sur l'image de partage. */
+.marque { min-height: 40px; }
+.emplacement-logo { height: 46px; margin-bottom: 1rem; }
+.marque__nom { font-size: var(--t-m); font-weight: 600; }
+.entete__outils { display: flex; align-items: center; gap: 0.5rem; }
+/* Bouton de partage : même pastille que le bouton de langue ; visible seulement avec JavaScript */
+.partage { display: none; }
+.js .partage {
+  position: relative; display: inline-grid; place-items: center; width: 2.25rem; height: 1.9rem;
+  padding: 0; border: 1px solid var(--filet-clair); border-radius: 999px; background: none;
+  font: inherit; color: var(--rouille); cursor: pointer; transition: border-color var(--duree), background var(--duree);
+}
+.js .partage:hover { border-color: var(--rouille); }
+.partage .icone { width: 1rem; height: 1rem; }
+.partage__retour {
+  position: absolute; top: calc(100% + 0.4rem); right: 0; z-index: 5; white-space: nowrap;
+  padding: 0.25rem 0.6rem; border-radius: var(--rayon-petit); background: var(--anthracite); color: var(--creme);
+  font-size: var(--t-xs); font-weight: 600; opacity: 0; pointer-events: none; transition: opacity var(--duree);
+}
+.partage__retour:not(:empty) { opacity: 1; }
+.langue {
+  display: inline-grid; place-items: center; height: 1.9rem;
+  font-size: var(--t-xs); font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 0.3rem 0.6rem; border: 1px solid var(--filet-clair); border-radius: 999px; text-decoration: none;
+}
+
+.contenu { flex: 1; padding-block: 1.5rem 4rem; }
+.contenu > h1:first-child { margin-top: 1rem; }
+
+/* ---------- Boutons ---------- */
+.bouton, .bouton-principal {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  padding: 0.75rem 1.3rem; border-radius: 999px;
+  font: inherit; font-weight: 600; text-decoration: none; cursor: pointer;
+  transition: background var(--duree), color var(--duree), border-color var(--duree);
+}
+.bouton { background: var(--anthracite); color: var(--creme); border: 1px solid var(--anthracite); }
+.bouton:hover { background: var(--rouille); border-color: var(--rouille); color: var(--creme); text-decoration: none; }
+
+/* Bouton principal : apparence pilotée par les variables --bouton-* (tokens.css) */
+.bouton-principal { background: var(--bouton-fond); color: var(--bouton-texte); border: 1.5px solid var(--bouton-bordure); }
+.bouton-principal:hover { background: var(--bouton-fond-survol); color: var(--bouton-texte-survol); border-color: var(--bouton-fond-survol); text-decoration: none; }
+.bouton-principal .icone { transition: transform var(--duree); }
+.bouton-principal:hover .icone { transform: translateX(3px); }
+
+/* ---------- Pied de page : une ligne de liens discrets ---------- */
+.pied { padding-block: 0.25rem 0.75rem; font-size: var(--t-s); }
+.pied__ligne { display: flex; justify-content: center; }
+.pied a { color: var(--texte-secondaire); text-decoration-color: var(--filet-clair); }
+.pied a:hover { color: var(--texte); text-decoration-color: currentColor; }
+.nav { list-style: none; display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; margin: 0; padding: 0; }
+
+.erreur { text-align: left; }
+.coordonnee { display: inline-block; vertical-align: middle; margin-block: 0.15rem; }
+
+/* Plan du site : arborescence avec filets */
+.plan, .plan ul { list-style: none; margin: 0; padding: 0; }
+.plan { display: grid; gap: 0.75rem; max-width: var(--mesure); }
+.plan > li { font-weight: 600; }
+.plan ul { margin: 0.4rem 0 0 0.35rem; padding-left: 1rem; border-left: 1px solid var(--filet-clair); display: grid; gap: 0.3rem; font-weight: 400; }
+.plan ul ul { margin-top: 0.3rem; }
+
+/* ================= Accueil : grille bento ================= */
+/* Accueil : l'en-tête n'a pas de marge basse ; l'espace entre l'en-tête et les cartes
+   est la gouttière des cartes elle-même (--gouttiere), pour un rythme identique. */
+.accueil { --gouttiere: var(--espace); padding-block: var(--gouttiere) 0.75rem; }
+.entete:has(+ * + .accueil) .entete__ligne, .entete:has(~ .accueil) .entete__ligne { padding-bottom: 0; }
+
+.bento { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--gouttiere, var(--espace)); }
+
+.carte {
+  --pad: clamp(1.25rem, 2vw, 1.75rem);
+  position: relative; border-radius: var(--rayon); padding: var(--pad);
+  box-shadow: var(--ombre);
+  transition: box-shadow var(--duree);
+}
+.carte:hover { box-shadow: var(--ombre-survol); }
+.carte h2 { margin: 0 0 0.85rem; }
+.carte p, .carte ul, .carte ol { max-width: none; }
+.carte ul, .carte ol { list-style: none; margin: 0; padding: 0; }
+
+.carte--claire { background: var(--albatre) var(--grain); border: 1px solid var(--filet-clair); }
+.carte--sombre { color: var(--texte-sur-sombre); }
+.carte--sombre a { color: var(--lien-sur-sombre); }
+.carte--sombre :focus-visible { outline-color: var(--focus-sur-sombre); }
+.carte--sombre .etiquette { color: var(--accent-sur-sombre); }
+
+/* Liste à puces discrètes, commune aux cartes claires */
+.liste-tirets { display: grid; gap: 0.25rem; }
+.liste-tirets li { position: relative; padding-left: 1.1rem; }
+.liste-tirets li::before { content: ""; position: absolute; left: 0; top: 0.8em; width: 0.45rem; height: 1.5px; background: var(--rouille); }
+
+/* --- Tuile titre : photo d'arbre (pxhere, CC0) virée en bleu canard sous un voile,
+   titre crème sur une ligne dont la taille suit la largeur de la tuile.
+   Contraste mesuré au point le plus clair : crème 5,9 (titre ≥ 3). --- */
+.tuile-titre {
+  grid-column: 1 / -1; container-type: inline-size; overflow: hidden; margin: 0; max-width: none;
+  display: flex; flex-direction: column; justify-content: center; /* titre centré même si la tuile s'agrandit */
+  padding: clamp(0.75rem, 1.2vw, 1.1rem) clamp(1.25rem, 2.2vw, 2rem);
+  border-radius: var(--rayon); box-shadow: var(--ombre);
+  background: linear-gradient(160deg, rgb(4 24 28 / 0.35), rgb(4 24 28 / 0.5)), url("../img/texture-arbre.webp") center 40% / cover, var(--canard-profond);
+  color: var(--creme);
+}
+.tuile-titre__titre {
+  margin: 0; max-width: none; color: inherit;
+  font-size: var(--t-m); font-weight: 600; line-height: 1.05; letter-spacing: -0.05em; white-space: nowrap;
+}
+@supports (font-size: 1cqi) {
+  .tuile-titre__titre span { font-size: min(calc((100cqi - 2 * clamp(1.25rem, 2.2vw, 2rem)) / 10.2), 4.5rem); }
+}
+@supports not (font-size: 1cqi) {
+  .tuile-titre__titre span { font-size: clamp(1.6rem, 6.5vw, 4rem); white-space: normal; }
+}
+/* Éléments de l'en-tête repris dans la tuile titre, et tuile de contact de fin de page :
+   seulement sur mobile (voir la règle « max-width: 44rem »). */
+.tuile-titre__haut, .tuile-contact { display: none; }
+.tuile-contact {
+  grid-column: 1 / -1; padding: 1.5rem 1.25rem; border-radius: var(--rayon); box-shadow: var(--ombre);
+  background: linear-gradient(160deg, rgb(4 24 28 / 0.35), rgb(4 24 28 / 0.5)), url("../img/texture-arbre.webp") center 40% / cover, var(--canard-profond);
+  color: var(--creme);
+}
+.tuile-contact h2 { margin: 0 0 0.3rem; font-size: var(--t-l); }
+.tuile-contact p { margin: 0 0 1.1rem; color: var(--creme-douce); }
+/* Pastilles de partage et de langue sur fond bleu canard */
+.tuile-titre .marque, .tuile-titre .marque:hover { color: var(--creme); }
+.tuile-titre .partage, .tuile-titre .langue { border-color: rgb(245 242 235 / 0.4); color: var(--creme); }
+.tuile-titre .partage:hover, .tuile-titre .langue:hover { border-color: var(--creme); }
+.tuile-titre :focus-visible, .tuile-contact :focus-visible { outline-color: var(--creme); }
+.tuile-contact .citation { margin-top: 1.5rem; padding-top: 1.1rem; border-top: 1px solid rgb(245 242 235 / 0.3); }
+.tuile-contact .citation p { color: var(--creme); }
+.tuile-contact .citation figcaption { color: var(--creme-douce); }
+@media (max-width: 44rem) {
+  /* Titre centré à l'œil : on mesure depuis le bas du nom (et non des pastilles) jusqu'aux capitales,
+     et depuis le bas du « g » jusqu'aux boutons ; le titre remonte donc d'environ 10 px par rapport au centre géométrique. */
+  .tuile-titre__haut { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.8rem; }
+  .tuile-titre .actions-accueil { margin-top: 1.9rem; }
+  .tuile-contact { display: block; }
+  .tuile-titre { padding-block: 1rem 1.25rem; }
+  /* Carte 01 : sur mobile, ni bouton « Commençons par en parler » (les boutons sont dans la tuile
+     titre) ni citation (elle passe dans la tuile de fin de page). */
+  .carte--pourquoi .pourquoi__pied { display: none; }
+  .bento .carte--pourquoi .liste-tirets { margin-bottom: 0; }
+}
+
+/* --- 1. Pourquoi : carte dominante --- */
+/* Filigrane : saule givré (pxhere, CC0) en tons de lin très clairs, tronc estompé,
+   placé à droite, loin du titre. Fond le plus foncé #DCD3C5 : encre 10,9, encre douce 4,6, rouille 5,4. */
+.carte--pourquoi {
+  display: flex; flex-direction: column;
+  background: url("../img/texture-givre.webp") right bottom / cover no-repeat, var(--albatre);
+}
+/* Titre de la carte 01 : un h2 (le titre principal de la page est la tuile « Coaching professionnel »),
+   présenté comme un grand titre. */
+.carte--pourquoi .titre-pourquoi { font-size: var(--t-xl); line-height: 1.1; letter-spacing: -0.025em; margin: 0 0 0.9rem; }
+.carte--pourquoi .liste-tirets { margin-bottom: 1.25rem; }
+.pourquoi__pied { display: grid; gap: 1rem 2rem; align-items: center; }
+.pourquoi__action { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; }
+.note { font-size: var(--t-s); color: var(--texte-secondaire); }
+.citation { margin: 0; padding-top: 1rem; border-top: 1px solid var(--filet-clair); }
+.citation blockquote { margin: 0; }
+.citation p { margin: 0; font-style: italic; color: var(--texte); }
+.citation figcaption { margin-top: 0.35rem; font-size: var(--t-s); color: var(--texte-secondaire); }
+.citation cite { font-style: italic; }
+
+/* --- 2. Pour qui : onglets --- */
+.onglets__liste { display: flex; flex-wrap: wrap; gap: 0.25rem; margin: 0 0 1rem; padding: 0.25rem; border-radius: 1.4rem; background: var(--lin); border: 1px solid var(--filet-clair); width: fit-content; max-width: 100%; }
+.onglet {
+  font: inherit; font-size: var(--t-s); font-weight: 600; cursor: pointer;
+  padding: 0.45rem 0.9rem; border-radius: 999px; border: 1px solid transparent;
+  background: transparent; color: var(--texte-secondaire);
+  transition: background var(--duree), color var(--duree);
+}
+.onglet:hover { color: var(--texte); }
+.carte--pourqui .onglet { padding-inline: 0.7rem; } /* 3 onglets sur une ligne dès 1280 px */
+.onglet[aria-selected="true"] { background: var(--bouton-fond); color: var(--bouton-texte); border-color: var(--bouton-bordure); }
+.onglets__panneau h3 { margin: 0 0 0.75rem; }
+.js .onglets__panneau h3 { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.onglets__panneau + .onglets__panneau { margin-top: 1.25rem; }
+/* Avec JavaScript : panneaux superposés dans la même cellule, seul l'actif est visible
+   (les autres sont hors de l'arbre d'accessibilité et du parcours clavier). */
+.js .onglets__panneaux { display: grid; }
+.js .onglets__panneau { grid-area: 1 / 1; }
+.js .onglets__panneau + .onglets__panneau { margin-top: 0; }
+.js .onglets__panneau:not([data-actif]) { visibility: hidden; }
+/* Onglets « libres » (carte 5) : seul le panneau actif occupe de la place,
+   la carte change de taille selon l'onglet. */
+.js .onglets--libre .onglets__panneau:not([data-actif]) { display: none; }
+
+/* --- 5. Comment : petit bloc dépliable --- */
+/* Titre-bouton des cartes dépliables (04, 05) */
+.depliable__titre { margin: 0; font-size: inherit; }
+.depliable__bouton .etiquette { margin: 0; }
+.depliable__bouton {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; width: 100%;
+  padding: 0; border: 0; background: none; cursor: pointer;
+  font: inherit; font-weight: 600; color: inherit; text-align: left;
+}
+.depliable__indice { margin-left: auto; min-width: 0; font-size: var(--t-s); font-weight: 400; line-height: 1.3; letter-spacing: 0; text-transform: none; text-align: right; color: var(--texte-secondaire-sur-sombre); }
+.carte--claire .depliable__indice { color: var(--texte-secondaire); }
+/* Ordinateur et tablette : indice sur une ligne ; c'est le filet de l'étiquette qui rétrécit */
+@media (min-width: 48rem) {
+  .depliable__bouton .depliable__indice { white-space: nowrap; }
+  .depliable__bouton .etiquette { flex-shrink: 1; min-width: 0; }
+  .depliable__bouton .etiquette--filet::after { flex: 0 1 auto; width: 2rem; min-width: 0.5rem; }
+}
+/* Carte trop étroite pour l'indice sur une ligne (ex. carte 05 en 1152–1300 px) :
+   retour à la ligne, aligné à droite, sans écraser le chevron. */
+.carte--comment, .carte--pourqui, .carte--avecqui .coach__texte { container-type: inline-size; }
+@container (max-width: 33rem) {
+  .depliable__bouton .depliable__indice { white-space: normal; }
+}
+/* Petits écrans : l'indice reste sur la ligne de l'étiquette, à droite. Le filet rétrécit
+   d'abord ; si la place manque encore, l'indice passe sur deux lignes, sans toucher au chevron. */
+@media (max-width: 47.99rem) {
+  .depliable__bouton .etiquette { flex-shrink: 1; }
+  .depliable__bouton .etiquette--filet::after { flex: 0 0 0.5rem; }
+  .depliable__bouton .depliable__indice { white-space: normal; }
+}
+.carte--claire .depliable__bouton:hover .depliable__indice { color: var(--texte); }
+/* Carte 2 : barre d'ouverture sous les profils (fermée), « Réduire » en haut à droite (ouverte) */
+.depliable__barre { display: none; }
+/* Même présentation que les cartes 04 et 05 : texte discret aligné à droite, puis chevron */
+.js .depliable__barre {
+  display: flex; align-items: center; justify-content: flex-end; gap: 1rem; width: 100%;
+  margin: 0.9rem 0 0; padding: 0; border: 0; background: none;
+  font: inherit; color: var(--texte); cursor: pointer;
+}
+.depliable__barre .depliable__indice { margin-left: 0; }
+.js .depliable__barre:hover .depliable__indice { color: var(--texte); }
+.js .depliable__barre:hover .depliable__icone { background: var(--anthracite); color: var(--creme); border-color: var(--anthracite); }
+.depliable__barre .depliable__icone { width: 2rem; height: 2rem; }
+.depliable__barre[aria-expanded="true"] .depliable__icone .icone { transform: rotate(180deg); }
+.js .carte--pourqui[data-ouvert] .depliable__barre { position: absolute; top: calc(var(--pad) - 0.45rem); right: var(--pad); width: auto; margin: 0; }
+.depliable__barre[aria-expanded="true"] .depliable__indice { visibility: visible; }
+.js .carte--pourqui[data-ouvert] #titre-pourqui { padding-right: 6.5rem; } /* place pour « Réduire » */
+/* Carte 2 : « Profils » est le contenu de la carte fermée, pas un onglet */
+.carte--pourqui #onglet-profils { display: none; }
+.profils__libelle { margin: 0 0 0.6rem; font-weight: 600; color: var(--titre-accent); }
+.depliable__bouton[aria-expanded="true"] .depliable__indice { visibility: hidden; }
+.depliable__bouton:hover .depliable__indice { color: var(--texte-sur-sombre); }
+.depliable__icone {
+  flex: none; display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%;
+  border: 1.5px solid currentColor; transition: background var(--duree), color var(--duree);
+}
+.depliable__icone .icone { transition: transform var(--duree); }
+/* Chevron centré sur la ligne de texte (étiquette et indice sont alignés sur leur ligne de base) :
+   aligné sur la ligne de base, puis légèrement descendu pour que son centre tombe au milieu du texte. */
+.depliable__bouton .depliable__icone, .retourner .depliable__icone { align-self: baseline; position: relative; top: 0.33rem; margin-block: -0.7rem; }
+.depliable__bouton:hover .depliable__icone { background: var(--anthracite); color: var(--creme); border-color: var(--anthracite); }
+.carte--sombre .depliable__bouton:hover .depliable__icone { background: var(--creme); color: var(--canard-profond); border-color: var(--creme); }
+.depliable__bouton[aria-expanded="true"] .depliable__icone .icone { transform: rotate(180deg); }
+/* Carte 05 fermée : même marge que les autres cartes, contenu centré verticalement */
+.js .carte--comment:not([data-ouvert]) { display: flex; flex-direction: column; justify-content: center; padding-bottom: calc(var(--pad) - 0.8rem); }
+.comment__contenu { margin-top: 1.25rem; }
+
+
+/* Onglet « Mon accompagnement » : texte puis schéma ; côte à côte sur grand écran */
+.accompagnement { display: grid; gap: 1rem 3rem; align-items: center; }
+.accompagnement .approche { font-size: var(--t-m); }
+.accompagnement .spheres { margin: 0; }
+
+/* Onglet « Le coaching professionnel, c'est quoi ? » : texte long, deux colonnes sur grand écran */
+.texte-long { max-width: none; }
+.texte-long section { break-inside: avoid; margin-bottom: 1.5rem; }
+.texte-long h4 { margin: 0 0 0.5rem; font-size: var(--t-m); font-weight: 600; color: var(--titre-accent); }
+.texte-long p { margin: 0 0 0.75rem; max-width: 68ch; }
+.texte-long__intro { font-size: var(--t-l); line-height: 1.4; margin-bottom: 1.5rem !important; column-span: all; }
+.texte-long .liste-fleches, .texte-long .liste-croix { margin: 0 0 0.75rem; padding: 0; list-style: none; display: grid; gap: 0.2rem; }
+.liste-fleches li, .liste-croix li { position: relative; padding-left: 1.5rem; }
+.liste-fleches li::before { content: "→"; position: absolute; left: 0; color: var(--rouille); }
+.liste-croix li::before { content: "✕"; position: absolute; left: 0.1rem; color: var(--rouille); font-size: 0.85em; top: 0.15em; }
+.leitmotiv { column-span: all; margin: 0.5rem 0 0 !important; padding: 0.9rem 1.25rem; max-width: none !important; border-left: 3px solid var(--rouille); background: var(--lin); border-radius: 0 var(--rayon-petit) var(--rayon-petit) 0; }
+
+/* --- Infographie « Les trois sphères » --- */
+.spheres { margin: 1.25rem 0 0; }
+.spheres__svg { display: block; width: 100%; max-width: 32rem; height: auto; margin: 0 auto; font-family: var(--police); }
+.spheres__lacher-stop { stop-color: var(--zone-lacher); }
+.spheres__influence { fill: var(--zone-influence); }
+.spheres__contour { fill: none; stroke: var(--rouille); stroke-width: 2; stroke-dasharray: 3 9; stroke-linecap: round; }
+.spheres__controle { fill: var(--anthracite); }
+.spheres__anneau { fill: none; stroke: var(--cuivre); stroke-width: 2; }
+.spheres__pastille { fill: var(--albatre); fill-opacity: 0.85; }
+.spheres__titre { font-size: 24px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; fill: var(--encre); }
+.spheres__titre--clair { fill: var(--creme); }
+.spheres__titre--doux, .spheres__sous--doux { fill: var(--encre-douce); }
+.spheres__sous { font-size: 20px; fill: var(--encre); }
+.spheres__sous--cuivre { fill: var(--cuivre-clair); }
+.spheres__note { font-size: 19px; fill: var(--encre-douce); }
+.spheres__fleche { fill: none; stroke: var(--rouille); stroke-width: 1.5; }
+.spheres__point { fill: var(--cuivre); }
+/* Légende : seulement sur petit écran, où les sous-titres du schéma deviendraient illisibles */
+.spheres__legende { display: grid; gap: 0.4rem; margin-top: 1rem; font-size: var(--t-s); }
+.spheres__legende li { display: flex; align-items: center; gap: 0.6rem; }
+.spheres__pastille-leg { flex: none; width: 0.9rem; height: 0.9rem; border-radius: 50%; }
+.spheres__pastille-leg--controle { background: var(--anthracite); box-shadow: 0 0 0 2px var(--cuivre); }
+.spheres__pastille-leg--influence { background: var(--zone-influence) url("../img/texture-rouille.webp") center / cover; border: 1.5px dashed var(--rouille); }
+.spheres__pastille-leg--lacher { background: var(--zone-lacher); }
+@media (max-width: 47.99rem) {
+  .spheres__sous, .spheres__note, .spheres__fleche, .spheres__point { display: none; }
+  .spheres__pastille { height: 44px; y: 146px; } /* centrée sur les capitales du titre (ligne de base 176, hauteur ≈ 17) */
+  .spheres__titre { font-size: 24px; letter-spacing: 0.08em; }
+  /* Sans sous-titre, « Contrôle » descend au centre du cercle (centre 300, capitales 277–294) */
+  .spheres__titre--clair { transform: translateY(14px); }
+  /* Schéma recadré : on rogne les marges vides latérales pour l'agrandir */
+  .spheres { overflow: hidden; }
+  .spheres__svg { width: 118%; max-width: none; margin-left: -9%; }
+}
+@media (min-width: 48rem) { .spheres__legende { display: none; } }
+.onglets__panneau:focus-visible { outline-offset: 6px; }
+.badges { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.badges li { padding: 0.25rem 0.8rem; border-radius: 999px; background: var(--lin); border: 1px solid var(--filet-clair); }
+.approche { margin: 0; }
+/* Accompagnements individuel et collectif (carte 02) */
+.accompagnements__intro { margin: 0 0 1rem; color: var(--texte-secondaire); }
+.accompagnements__intro strong { color: var(--texte); }
+.accompagnements { display: grid; gap: 1.25rem 2rem; }
+.accompagnements__theme h4 { margin: 0 0 0.4rem; font-size: var(--t-m); font-weight: 600; color: var(--titre-accent); }
+.accompagnements .liste-tirets { gap: 0.35rem; font-size: var(--t-s); line-height: 1.5; }
+.accompagnements .liste-tirets li::before { top: 0.72em; }
+.carte--pourqui .liste-tirets { gap: 0.1rem; line-height: 1.5; }
+.carte--pourqui .liste-tirets li::before { top: 0.75em; }
+
+/* --- 3. Cadre : métal rouillé et patiné, sous un voile sombre --- */
+.carte--cadre {
+  background:
+    var(--voile-rouille),
+    url("../img/texture-rouille.webp") center / cover no-repeat,
+    var(--rouille-profonde);
+}
+.carte--cadre .etiquette { color: var(--peau-cuivre); }
+.carte--cadre a { color: var(--peau-cuivre); }
+.carte--cadre :focus-visible { outline-color: var(--peau-cuivre); }
+.piliers { display: grid; }
+/* Carte 03 retournable : recto « le cadre », verso « le format ».
+   Sans JavaScript : les deux faces se suivent, séparées par un filet.
+   Avec JavaScript : faces superposées dans la même cellule (la carte prend la hauteur
+   de la plus grande), la carte pivote sur un axe vertical. */
+.cadre__face--verso { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgb(242 215 193 / 0.35); }
+.retourner { display: none; }
+.js .carte--cadre { padding: 0; background: none; perspective: 1600px; }
+.js .cadre__interieur {
+  display: grid; height: 100%;
+  transform-style: preserve-3d; transition: transform 700ms cubic-bezier(0.4, 0.1, 0.2, 1);
+}
+.js .carte--cadre[data-retourne] .cadre__interieur { transform: rotateY(180deg); }
+.js .cadre__face {
+  grid-area: 1 / 1; display: flex; flex-direction: column;
+  margin: 0; padding: var(--pad); border: 0; border-radius: var(--rayon);
+  background: var(--voile-rouille), url("../img/texture-rouille.webp") center / cover no-repeat, var(--rouille-profonde);
+  -webkit-backface-visibility: hidden; backface-visibility: hidden;
+}
+.js .cadre__face--verso { transform: rotateY(180deg); }
+.js .cadre__face h2:focus { outline: none; }
+/* Flèche « Format, organisation, prix » / « Le cadre » : à droite de l'étiquette, comme les
+   autres cartes ; passe sous l'étiquette, alignée à droite, si la place manque. */
+.cadre__entete { display: flex; align-items: baseline; justify-content: space-between; gap: 0.4rem 1rem; margin-bottom: 1.35rem; }
+.cadre__entete .etiquette { margin: 0; flex-shrink: 1; }
+/* Le filet de l'étiquette rétrécit avant que le texte de la flèche ne le touche */
+.cadre__entete .etiquette--filet::after { flex: 0 0 2rem; }
+@media (max-width: 47.99rem) { .cadre__entete .etiquette--filet::after { flex-basis: 0.5rem; } }
+/* Comme les cartes 04 et 05 : le texte de la flèche reste sur la ligne de l'étiquette et
+   passe sur deux lignes, aligné à droite, si la carte est trop étroite. */
+.cadre__entete { flex-wrap: nowrap; }
+.cadre__entete .retourner .depliable__indice { text-align: right; }
+/* Très petits écrans (320 px) : la flèche passe sous l'étiquette plutôt que de déborder */
+@media (max-width: 22.5rem) { .cadre__entete { flex-wrap: wrap; } }
+.js .retourner {
+  display: flex; align-items: baseline; gap: 0.75rem; margin: 0 0 0 auto;
+  padding: 0; border: 0; background: none;
+  font: inherit; color: var(--texte-sur-sombre); cursor: pointer; text-align: right;
+}
+/* Verso plus dense (4 points), pour que la carte garde la hauteur du recto */
+.cadre__face--verso .piliers { font-size: var(--t-s); line-height: 1.45; }
+.cadre__face--verso .piliers li { padding-block: 0.5rem; }
+.cadre__face--verso .piliers .icone { width: 1.2rem; height: 1.2rem; }
+.retourner .depliable__indice { margin-left: 0; color: var(--peau-cuivre); }
+.retourner:hover .depliable__indice { color: var(--texte-sur-sombre); }
+.retourner:hover .depliable__icone { background: var(--creme); color: var(--rouille-profonde); border-color: var(--creme); }
+.piliers li { position: relative; display: flex; gap: 0.9rem; align-items: flex-start; padding-block: 0.75rem; }
+.piliers li + li::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: var(--peau-cuivre); opacity: 0.35; }
+.piliers .icone { width: 1.35rem; height: 1.35rem; color: var(--peau-cuivre); margin-top: 0.1rem; }
+.piliers p { margin: 0; }
+
+/* --- 4. Avec qui : forêt dans la brume, virée en bleu canard profond --- */
+.carte--avecqui {
+  background: url("../img/texture-foret.webp") center / cover no-repeat, var(--canard-profond);
+}
+.titre-carte { margin: 0 0 0.8rem; font-size: var(--t-l); font-weight: 600; line-height: 1.2; letter-spacing: -0.015em; }
+.carte--avecqui .depliable__titre { margin-bottom: 0.6rem; }
+.carte--avecqui .titre-carte { margin-bottom: 0.6rem; }
+/* Cartes 03 et 04 : la flèche ronde dépasse sous la ligne de l'étiquette ; on laisse sous elle
+   le même espace qu'entre l'étiquette et le titre des cartes sans flèche (01, 02). */
+.carte--avecqui .coach__texte .titre-carte { margin-top: 0.75rem; }
+.carte--avecqui .points { gap: 0.35rem; line-height: 1.45; }
+.carte--avecqui .depliable__icone { width: 2rem; height: 2rem; margin-right: 1px; } /* compense la bordure des cartes claires */
+/* Onglets sur fond sombre */
+.carte--sombre .onglets__liste { background: rgb(3 21 24 / 0.45); border-color: rgb(255 255 255 / 0.14); }
+.carte--sombre .onglet { color: var(--texte-secondaire-sur-sombre); }
+.carte--sombre .onglet:hover { color: var(--texte-sur-sombre); }
+.carte--sombre .onglet[aria-selected="true"] { background: transparent; color: var(--texte-sur-sombre); border-color: var(--texte-sur-sombre); }
+/* Carte 4 fermée : seulement l'onglet Parcours, sans la barre d'onglets */
+.js [data-depliable-partiel]:not(.carte--pourqui):not([data-ouvert]) .onglets__liste { display: none; }
+/* Carte 02 : boutons d'accompagnement rouille, de la taille des profils ; sous les profils
+   quand la carte est fermée (aucun sélectionné), en haut quand elle est ouverte. */
+.js .carte--pourqui .onglets { display: flex; flex-direction: column; }
+.js .carte--pourqui:not([data-ouvert]) .onglets__liste { order: 2; margin: 0.9rem 0 0; }
+.carte--pourqui .onglets__liste { gap: 0.4rem; padding: 0; border: 0; background: none; border-radius: 0; }
+.carte--pourqui .onglet {
+  padding: 0.25rem 0.8rem; border-radius: 999px; font-size: var(--t-m); font-weight: 600;
+  border: 1.5px solid var(--rouille); color: var(--rouille); background: transparent;
+}
+.carte--pourqui .onglet:hover { background: rgb(124 63 44 / 0.08); color: var(--rouille-profonde); }
+.carte--pourqui .onglet[aria-selected="true"] { background: var(--rouille); border-color: var(--rouille); color: var(--creme); } /* crème sur rouille : 7,2 */
+.js .carte--pourqui:not([data-ouvert]) .depliable__barre { display: none; }
+/* Certifications et facettes */
+.certifications, .facettes { display: grid; gap: 0.75rem; font-size: var(--t-s); }
+.facette__nom .icone { color: var(--accent-sur-sombre); }
+.certifications { display: grid; gap: 0 2rem; align-items: start; }
+@media (min-width: 64rem) {
+  /* 3 colonnes fixes : Accompagnement | Agilité | Gouvernance au-dessus de Technologie */
+  .certifications { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: auto 1fr; }
+  .certifs__groupe:nth-child(1) { grid-column: 1; grid-row: 1 / span 2; }
+  .certifs__groupe:nth-child(2) { grid-column: 2; grid-row: 1 / span 2; }
+  .certifs__groupe:nth-child(3) { grid-column: 3; grid-row: 1; }
+  .certifs__groupe:nth-child(4) { grid-column: 3; grid-row: 2; }
+}
+.certifs__groupe { margin-bottom: 1.25rem; }
+.certifs__titre { margin: 0 0 0.5rem; font-size: var(--t-xs); font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-sur-sombre); }
+.certifs__groupe ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; }
+.certif { padding-left: 0.75rem; border-left: 1px solid rgb(255 255 255 / 0.18); }
+.certif p { margin: 0; }
+.certif__nom { color: var(--texte-sur-sombre); font-weight: 600; line-height: 1.4; }
+.certif__meta { color: var(--texte-secondaire-sur-sombre); line-height: 1.5; overflow-wrap: anywhere; }
+.certif__meta a { display: inline-flex; align-items: center; gap: 0.2rem; white-space: nowrap; }
+.certif__meta .icone { width: 0.9em; height: 0.9em; }
+.certif__id { margin-right: 0.5rem; font-variant-numeric: tabular-nums; }
+.facettes { display: block; columns: 19rem 3; column-gap: 1rem; } /* mosaïque : pas de vide sous les cartes courtes */
+/* inline-block : évite le décalage en haut de colonne (marge reportée par le navigateur) */
+.facettes .facette { display: inline-block; width: 100%; vertical-align: top; margin-bottom: 1rem; break-inside: avoid; }
+.facette { padding: 1rem 1.1rem; border-radius: 0.75rem; background: rgb(3 21 24 / 0.45); border: 1px solid rgb(255 255 255 / 0.12); } /* assombrit : contrastes ≥ fond */
+.facette p { margin: 0; }
+.facette__nom { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem !important; color: var(--texte-sur-sombre); font-size: var(--t-m); }
+.facette__texte { color: var(--texte-secondaire-sur-sombre); }
+.facette__outils-titre { margin-top: 0.7rem !important; margin-bottom: 0.35rem !important; color: var(--accent-sur-sombre); font-weight: 600; }
+.facette__outils { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.facette__outils cite { font-style: italic; }
+.facette__outils li { padding: 0.1rem 0.55rem; border-radius: 0.6rem; border: 1px solid rgb(255 255 255 / 0.16); color: var(--texte-secondaire-sur-sombre); font-size: var(--t-xs); line-height: 1.6; }
+.coach { display: grid; gap: 1.25rem; }
+.coach__identite { display: flex; align-items: center; gap: 1rem; }
+.coach__portrait {
+  flex: none; display: grid; place-items: center;
+  width: 5.5rem; aspect-ratio: 3 / 4; border-radius: 0.75rem;
+  background: linear-gradient(160deg, #34363b, #1d1f22); color: var(--creme-douce);
+  outline: 1px solid var(--cuivre); outline-offset: 3px;
+}
+.coach__portrait .icone { width: 2rem; height: 2rem; color: var(--accent-sur-sombre); }
+.coach__portrait--photo { height: auto; object-fit: cover; background: none; }
+.carte--avecqui .coach__portrait { background: linear-gradient(160deg, #123E46, #04191D); }
+.coach__nom { margin: 0; font-size: var(--t-m); font-weight: 600; }
+.coach__structure { margin: 0.1rem 0 0; font-size: var(--t-s); color: var(--texte-secondaire-sur-sombre); }
+.points { display: grid; gap: 0.6rem; font-size: var(--t-s); }
+.points li { display: flex; gap: 0.7rem; }
+.points .icone { color: var(--accent-sur-sombre); margin-top: 0.2rem; }
+.points p { margin: 0; color: var(--texte-secondaire-sur-sombre); }
+.points strong { color: var(--texte-sur-sombre); }
+
+/* Grille bento : mosaïque à partir de 72rem (1152 px), empilement aéré en dessous */
+@media (min-width: 48rem) {
+  .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .carte--pourquoi, .carte--avecqui, .carte--comment { grid-column: 1 / -1; }
+  /* Carte 4 : portrait vertical à gauche, texte à droite, dès la tablette */
+  .coach { grid-template-columns: auto 1fr; align-items: start; }
+  .coach__identite { flex-direction: column; align-items: flex-start; gap: 0.75rem; width: 8rem; }
+  .coach__portrait { width: 8rem; }
+}
+@media (min-width: 72rem) {
+  .texte-long { column-count: 2; column-gap: 3rem; }
+  .bento { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .carte--pourquoi { grid-column: 1 / 8; }
+  .carte--pourqui  { grid-column: 8 / 13; }
+  .carte--cadre    { grid-column: 1 / 6; }
+  .carte--avecqui  { grid-column: 6 / 13; }
+  .pourquoi__pied { grid-template-columns: auto minmax(0, 1fr); }
+  .pourquoi__action { flex-direction: column; align-items: flex-start; }
+  .pourquoi__pied .citation { padding: 0 0 0 1.5rem; border-top: 0; border-left: 1px solid var(--filet-clair); }
+  /* Carte 5 fermée : petit bloc sous la carte 2, à côté de la carte 1 (qui couvre
+     deux rangées). La rangée de la carte 5 ne s'étire jamais (min-content). */
+  /* Rangée 1 : tuile titre (largeur de la carte 1) ; la carte 2 couvre la tuile et la carte 1. */
+  .tuile-titre { grid-column: 1 / 8; grid-row: 1; }
+  .bento { grid-template-rows: auto auto min-content auto; }
+  .carte--pourquoi { grid-row: 2 / 4; }
+  .carte--pourqui  { grid-row: 1 / 3; }
+  .carte--comment  { grid-column: 8 / 13; grid-row: 3; }
+  .carte--cadre, .carte--avecqui { grid-row: 4; }
+  /* Carte 5 ouverte : pleine largeur sous la première rangée ; la carte 1 garde sa
+     hauteur (fixée par site.js), les cartes 3 et 4 descendent. */
+  .bento:has(.carte--comment[data-ouvert]) .carte--pourquoi { grid-row: 2; }
+  .bento:has(.carte--comment[data-ouvert]) { grid-template-rows: auto auto auto auto; }
+  /* Ouverte sur « Mon accompagnement » : même largeur que la carte 2, sous elle, sur
+     la hauteur des cartes 3 et 4, qui remontent dans la colonne de gauche. */
+  .carte--comment[data-ouvert] { grid-column: 8 / 13; grid-row: 3 / span 2; }
+  .bento:has(.carte--comment[data-ouvert]:not([data-onglet-actif="coaching"])) .carte--cadre { grid-column: 1 / 8; grid-row: 3; }
+  .bento:has(.carte--comment[data-ouvert]:not([data-onglet-actif="coaching"])) .carte--avecqui { grid-column: 1 / 8; grid-row: 4; }
+  /* Carte 2 sur un onglet d'accompagnement : elle garde sa colonne de droite et
+     s'allonge vers le bas ; les cartes 1, 3 et 4 s'empilent à gauche, la carte 5
+     passe en pleine largeur en dessous. La carte 1 garde sa hauteur (site.js). */
+  .bento:has(.carte--pourqui[data-ouvert]) { grid-template-rows: repeat(4, auto) 1fr auto; }
+  .carte--pourqui[data-ouvert] { grid-column: 8 / 13; grid-row: 1 / span 5; }
+  .bento:has(.carte--pourqui[data-ouvert]) .carte--pourquoi { grid-row: 2; }
+  .bento:has(.carte--pourqui[data-ouvert]) .carte--cadre { grid-column: 1 / 8; grid-row: 3; }
+  .bento:has(.carte--pourqui[data-ouvert]) .carte--avecqui { grid-column: 1 / 8; grid-row: 4; }
+  .bento:has(.carte--pourqui[data-ouvert]) .carte--comment { grid-column: 1 / -1; grid-row: 6; }
+  /* Carte 4 ouverte : la carte 3 passe en pleine largeur (ses 3 piliers côte à côte)
+     et la carte 4 s'étend en pleine largeur dessous. */
+  .bento:has(.carte--avecqui[data-ouvert]) .carte--cadre { grid-column: 1 / -1; grid-row: 4; }
+  .bento:has(.carte--avecqui[data-ouvert]) .piliers { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 2rem; }
+  .bento:has(.carte--avecqui[data-ouvert]) .piliers li + li::before { display: none; }
+  .carte--avecqui[data-ouvert] { grid-column: 1 / -1; grid-row: 5; }
+  /* Ouverte sur « Le coaching professionnel, c'est quoi ? » : pleine largeur */
+  .carte--comment[data-ouvert][data-onglet-actif="coaching"] { grid-column: 1 / -1; grid-row: 3; }
+  /* Pleine page : la grille remplit l'écran sous l'en-tête, cartes plus aérées */
+  .accueil { display: flex; flex-direction: column; }
+  /* Rangées « auto » : hauteur du contenu quand la place manque, étirées
+     quand l'écran est plus grand (align-content: stretch par défaut). */
+  .accueil { --gouttiere: clamp(1.1rem, 1.4vw, 1.75rem); }
+  .bento { flex: 1; }
+  .carte { --pad: clamp(1.25rem, 1.7vw, 2.5rem); padding: var(--pad); }
+}
+
+/* ================= Fenêtre de contact ================= */
+.dialogue {
+  border: 0; padding: 0; color: var(--texte);
+  background: var(--albatre) var(--grain);
+  box-shadow: 0 30px 80px rgb(31 33 36 / 0.25);
+}
+.dialogue::backdrop { background: rgb(31 33 36 / 0.45); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+
+.dialogue { width: min(100% - 2rem, 34rem); max-height: min(92dvh, 52rem); overflow-y: auto; border-radius: var(--rayon); }
+.dialogue__corps { position: relative; padding: 2rem; }
+.dialogue__corps:focus { outline: none; }
+.dialogue h2 { margin: 0 0 0.5rem; }
+/* Formulaire de contact */
+.formulaire-dialogue { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--filet-clair); }
+.formulaire { display: grid; gap: 0.85rem; max-width: 36rem; }
+.formulaire p { margin: 0; }
+.formulaire__champ { display: grid; gap: 0.3rem; }
+.formulaire label { font-size: var(--t-s); font-weight: 600; }
+.formulaire input, .formulaire textarea {
+  width: 100%; padding: 0.65rem 0.8rem; border-radius: var(--rayon-petit);
+  border: 1.5px solid var(--encre-douce); background: var(--blanc); color: var(--texte);
+  font: inherit; font-size: var(--t-m);
+}
+.formulaire textarea { resize: vertical; min-height: 7rem; }
+.formulaire input:focus-visible, .formulaire textarea:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; border-color: var(--encre); }
+.formulaire__facultatif { font-weight: 400; color: var(--texte-secondaire); }
+.formulaire__note, .formulaire__rgpd { font-size: var(--t-s); color: var(--texte-secondaire); }
+.formulaire button[disabled] { opacity: 0.6; cursor: wait; }
+.formulaire__statut { padding: 0.75rem 1rem; border-radius: var(--rayon-petit); font-weight: 600; }
+.formulaire__statut[data-type="succes"] { background: var(--lin); border-left: 3px solid var(--canard-profond); color: var(--texte); }
+.formulaire__statut[data-type="erreur"] { background: var(--lin); border-left: 3px solid var(--rouille); color: var(--rouille-profonde); }
+/* Champ piège anti-spam : hors écran, ignoré des humains et des lecteurs d'écran */
+.formulaire__piege { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.page-contact { max-width: 40rem; }
+.page-contact h2 { margin-top: 2.5rem; }
+.choix-contact__lien[aria-expanded="true"] > .icone:last-child { transform: rotate(180deg); }
+.choix-contact__lien > .icone:last-child { transition: transform var(--duree); }
+
+/* Fenêtre de contact : deux choix */
+.choix-contact { list-style: none; margin: 1.25rem 0 0; padding: 0; display: grid; gap: 0.75rem; max-width: none; }
+.choix-contact__lien {
+  display: flex; align-items: center; gap: 0.9rem; padding: 0.9rem 1rem; border-radius: 0.75rem;
+  border: 1.5px solid var(--encre); color: var(--texte); text-decoration: none;
+  transition: background var(--duree), color var(--duree);
+}
+a.choix-contact__lien:hover { background: var(--anthracite); color: var(--creme); text-decoration: none; }
+.choix-contact__icone { width: 1.5rem; height: 1.5rem; color: var(--rouille); }
+a.choix-contact__lien:hover .choix-contact__icone { color: var(--cuivre-clair); }
+.choix-contact__texte { flex: 1; display: grid; gap: 0.1rem; }
+.choix-contact__texte span { font-size: var(--t-s); color: var(--texte-secondaire); }
+a.choix-contact__lien:hover .choix-contact__texte span { color: var(--creme-douce); }
+
+
+.fermer {
+  position: absolute; top: 1rem; right: 1rem;
+  display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border-radius: 50%;
+  border: 1px solid var(--filet-clair); background: var(--albatre); color: var(--texte); cursor: pointer;
+  transition: border-color var(--duree);
+}
+.fermer:hover { border-color: var(--rouille); }
+
+
+/* Animations douces (désactivées si l'utilisateur préfère moins de mouvement) */
+.dialogue[open] { animation: apparition var(--duree) ease-out; }
+@keyframes apparition { from { opacity: 0; transform: translateY(12px) scale(.98); } }
+
+
+/* Écrans d'ordinateur peu hauts (ex. 1280 × 800) : carte 2 un peu plus compacte
+   pour que les 5 cartes tiennent sans défiler. */
+@media (min-width: 72rem) and (max-height: 51rem) {
+  .carte--pourqui .onglets__liste { margin-bottom: 0.6rem; }
+  .carte--pourqui .badges, .carte--pourqui .onglets__liste { gap: 0.3rem; }
+  .carte--pourqui .badges li, .carte--pourqui .onglet { padding-block: 0.15rem; }
+  .profils__libelle { margin-bottom: 0.4rem; }
+  .js .carte--pourqui:not([data-ouvert]) .onglets__liste { margin-top: 0.6rem; }
+  .carte--pourqui .liste-tirets { line-height: 1.4; }
+  .carte--pourqui h2 { margin-bottom: 0.6rem; }
+  .accueil { --gouttiere: 1rem; }
+  .carte { --pad: 1rem; padding: 1rem 1.25rem; }
+  .carte--avecqui .titre-carte { font-size: 1.2rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+
+/* ---------- Pages « situation » ---------- */
+.situation { max-width: var(--mesure); }
+.situation__fil { margin: 1rem 0 0; font-size: var(--t-xs); font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+.situation__fil a { color: var(--lien); text-decoration: none; }
+.situation__fil a:hover { text-decoration: underline; }
+.situation h1 { margin-top: 0.4rem; }
+.situation__accroche { font-size: var(--t-l); line-height: 1.45; color: var(--texte); }
+.situation h2 { margin-top: 2.5rem; }
+.situation__faq dt { font-weight: 600; margin-top: 1.25rem; }
+.situation__faq dd { margin: 0.35rem 0 0; color: var(--texte-secondaire); }
+.situation__appel {
+  margin-top: 3rem; padding: clamp(1.25rem, 3vw, 2rem);
+  background: var(--albatre); border: 1px solid var(--filet-clair); border-radius: var(--rayon);
+}
+.situation__appel h2 { margin-top: 0; }
+.situation__boutons { margin-bottom: 0; }
+.situation h3 { margin: 1.75rem 0 0.5rem; font-size: var(--t-m); font-weight: 600; color: var(--titre-accent); }
+.situation ul { padding-left: 1.2rem; }
+.situation li + li { margin-top: 0.35rem; }
+.situation__public { margin: 0 0 1.25rem; padding-left: 0.9rem; border-left: 2px solid var(--rouille); color: var(--texte-secondaire); }
+.situation__auteur { margin: 0.5rem 0 1.5rem; font-size: var(--t-s); color: var(--texte-secondaire); }
+.situation .situations { list-style: none; padding: 0; display: grid; gap: 1rem; }
+.situations li + li { margin-top: 0; }
+.situations a { font-weight: 600; }
+.situations span { font-size: var(--t-s); color: var(--texte-secondaire); }
+.situation__autres { margin-top: 2.5rem; }
+
+/* Mobile : cartes 03 et 04 en clair, proches des cartes 01, 02 et 05.
+   - 03 : texture rouille sous un voile albâtre à 82 %.
+   - 04 : la même forêt, en version claire (bichromie bleu canard pâle #A8C8CC → #E8F0EF,
+     texture-foret-clair.webp), pour garder ses formes et sa couleur sans griser.
+   Contrastes sur le pixel le plus sombre : forêt claire → encre 9,1, secondaire #45413C 5,7,
+   rouille profonde 6,1 ; rouille → encre 10,4, secondaire 6,6, rouille profonde 7,0 (AA). */
+@media (max-width: 44rem) {
+  .carte--avecqui, .carte--cadre {
+    --texte-sur-sombre: var(--encre);
+    --texte-secondaire-sur-sombre: #45413C;
+    --lien-sur-sombre: var(--rouille-profonde);
+    --accent-sur-sombre: var(--rouille-profonde);
+    --focus-sur-sombre: var(--encre);
+    --peau-cuivre: var(--rouille-profonde);
+  }
+  .carte--avecqui {
+    background: url("../img/texture-foret-clair.webp") center / cover no-repeat, #D5E3E4;
+    border: 1px solid var(--filet-clair);
+  }
+  .carte--cadre, .js .cadre__face {
+    background: linear-gradient(rgb(250 248 244 / 0.82), rgb(250 248 244 / 0.82)), url("../img/texture-rouille.webp") center / cover no-repeat, var(--albatre);
+  }
+  html:not(.js) .carte--cadre, .js .cadre__face { border: 1px solid var(--filet-clair); }
+  .js .carte--cadre { background: none; }
+  .cadre__face--verso { border-top-color: rgb(124 63 44 / 0.25); }
+  .retourner:hover .depliable__icone,
+  .carte--avecqui .depliable__bouton:hover .depliable__icone { background: var(--anthracite); color: var(--creme); border-color: var(--anthracite); }
+  .carte--avecqui .onglets__liste { background: rgb(255 255 255 / 0.6); border-color: var(--filet-clair); }
+  .carte--avecqui .facette { background: rgb(255 255 255 / 0.6); border-color: var(--filet-clair); }
+  .carte--avecqui .facette__outils li, .carte--avecqui .certif { border-color: rgb(31 33 36 / 0.18); }
+}

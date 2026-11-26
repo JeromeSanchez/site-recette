@@ -1,0 +1,113 @@
+/* Charte « Clarté, matières brutes & cuivre brossé ».
+   Contrastes WCAG calculés (texte courant : 4,5 minimum ; grands titres et
+   composants d'interface : 3 minimum). Ne pas ajouter de couleur sans
+   recalculer son contraste sur chaque fond où elle sera utilisée
+   (tableau complet : .claude/skills/site-vitrine-coaching/references/charte.md). */
+
+@font-face {
+  font-family: "Figtree";
+  src: url("../fonts/figtree-latin-400-normal.woff2") format("woff2");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Figtree";
+  src: url("../fonts/figtree-latin-600-normal.woff2") format("woff2");
+  font-weight: 600; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Figtree";
+  src: url("../fonts/figtree-latin-400-italic.woff2") format("woff2");
+  font-weight: 400; font-style: italic; font-display: swap;
+}
+
+:root {
+  /* Fonds clairs : lin et pierre */
+  --lin: #F5F2EB;               /* fond de page */
+  --albatre: #FAF8F4;           /* cartes claires */
+  --blanc: #FFFFFF;             /* champs de formulaire (encre 16,1) */
+  --filet-clair: #E2DDD5;       /* bordures fines des cartes claires (décor) */
+
+  /* Fonds sombres : matières */
+  --noyer: #2A2420;             /* bois fumé : carte « Cadre » */
+  --anthracite: #25272B;        /* câble : carte « Avec qui », pied de page */
+
+  /* Textes */
+  --encre: #1F2124;             /* lin 14,4 | albâtre 15,2 */
+  --encre-douce: #5E5A55;       /* lin 6,1 | albâtre 6,5 */
+  --creme: #F5F2EB;             /* noyer 13,7 | anthracite 13,4 */
+  --creme-douce: #C9BFB3;       /* noyer 8,5 | anthracite 8,3 */
+
+  /* Fer rouillé : accents sur fond clair */
+  --rouille: #7C3F2C;           /* lin 7,2 | albâtre 7,6 ✓ — ✗ sur fonds sombres */
+  --rouille-profonde: #5C3226;  /* lin 9,7 | albâtre 10,2 ✓ */
+
+  /* Rouille : carte « Cadre », photo de métal rouillé et patiné (libre d'usage commercial,
+     fournie par Jérôme) sous un voile sombre qui garantit les contrastes. */
+  --voile-rouille: linear-gradient(160deg, rgb(38 20 13 / 0.62), rgb(38 20 13 / 0.70));
+  --rouille-claire: #8A4A33;
+  --peau-cuivre: #F2D7C1;       /* accents sur rouille : 5,9 au pire ✓ */
+
+  /* Bleu canard profond : carte « Avec qui » (photo de forêt virée en bleu canard,
+     pixel le plus clair #1A4C55 : crème ≥ 8,5, crème douce ≥ 5,3, cuivre clair ≥ 4,9) */
+  --canard-profond: #0A2F36;
+
+  /* Infographie « Les trois sphères » */
+  --zone-influence: #E8D6C4;    /* texte encre 11,4 ✓ */
+  --zone-lacher: #E2DBD2;       /* texte encre douce 5,0 ✓ */
+
+  /* Cuivre : accents sur fond sombre et décor */
+  --cuivre-clair: #E6AE7E;      /* noyer 7,8 | anthracite 7,6 ✓ — ✗ sur fonds clairs (1,8) */
+  --cuivre: #B87333;            /* décor et grands titres sur sombre seulement (noyer 4,0) */
+  --cuivre-fonce: #9E5B28;      /* lin 4,7 ✓ : bordure du bouton cuivre */
+
+  /* Cuivre brossé : bouton principal, filets, états actifs.
+     Texte --encre sur chaque point du dégradé : 5,4 / 8,2 / 4,9 ✓ */
+  /* Bouton principal et onglet actif : variante C « contour fin », choisie par Jérôme.
+     Repos : fond transparent, texte et bordure encre (15,2 sur albâtre) ;
+     survol : fond anthracite, texte crème (13,4). */
+  --bouton-fond: transparent;
+  --bouton-texte: var(--encre);
+  --bouton-bordure: var(--encre);
+  --bouton-fond-survol: var(--anthracite);
+  --bouton-texte-survol: var(--creme);
+
+  --cuivre-brosse: linear-gradient(135deg, #C9874F 0%, #E6AE7E 50%, #C17F47 100%);
+  --cuivre-brosse-survol: linear-gradient(135deg, #D4955E 0%, #EDBE95 50%, #CB8A52 100%);
+  --filet-cuivre: linear-gradient(90deg, #B87333 0%, #DF9F6C 50%, #9E5B28 100%);
+
+  /* Rôles — à utiliser dans le CSS plutôt que les couleurs brutes */
+  --texte: var(--encre);
+  --texte-secondaire: var(--encre-douce);
+  --fond: var(--lin);
+  --lien: var(--rouille);
+  --lien-survol: var(--rouille-profonde);
+  --titre-accent: var(--rouille);
+  --focus: var(--encre);
+
+  --texte-sur-sombre: var(--creme);
+  --texte-secondaire-sur-sombre: var(--creme-douce);
+  --lien-sur-sombre: var(--cuivre-clair);
+  --accent-sur-sombre: var(--cuivre-clair);
+  --focus-sur-sombre: var(--cuivre-clair);
+
+  /* Typographie : une seule famille libre (Figtree, OFL), auto-hébergée.
+     Cinq tailles seulement. */
+  --police: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --t-xs: 0.75rem;              /* étiquettes en capitales */
+  --t-s: 0.875rem;              /* textes secondaires */
+  --t-m: 1rem;                  /* texte courant */
+  --t-l: 1.375rem;              /* titres de carte */
+  --t-xl: clamp(2.25rem, 3.6vw, 2.875rem); /* titre principal */
+
+  --interligne: 1.6;
+  --mesure: 68ch;
+  --espace: 1.25rem;            /* gouttière de la grille (gap-5) */
+  --rayon: 1rem;                /* coins des cartes (rounded-2xl) */
+  --rayon-petit: 0.5rem;
+  --ombre: 0 8px 30px rgb(38 33 29 / 0.06);
+  --ombre-survol: 0 14px 40px rgb(38 33 29 / 0.10);
+  --duree: 300ms;
+
+  /* Grain papier très léger (bruit SVG en ligne, aucun fichier ni service externe) */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.15 0 0 0 0 0.13 0 0 0 0 0.11 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+}
